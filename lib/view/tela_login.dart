@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'repository/repositorios.dart';
-import 'viewmodel/login_viewmodel.dart';
-import 'widgets/tela_catalogo.dart';
+import '../repository/repositorios.dart';
+import '../viewmodel/login_viewmodel.dart';
+import 'tela_catalogo.dart';
 
 class TelaLogin extends StatefulWidget {
   final Repositorios repositorios;
