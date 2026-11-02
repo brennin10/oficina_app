@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../repository/repositorios.dart';
 import '../viewmodel/login_viewmodel.dart';
 import 'tela_catalogo.dart';
+import 'tela_cadastro_usuario.dart';
 
 class TelaLogin extends StatefulWidget {
   final Repositorios repositorios;
@@ -49,6 +50,23 @@ class _TelaLoginState extends State<TelaLogin> {
           usuario: _viewModel.usuario!,
           repositorios: widget.repositorios,
         ),
+      ),
+    );
+  }
+
+  Future<void> _abrirCadastro() async {
+    final email = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        builder: (_) => TelaCadastroUsuario(repositorios: widget.repositorios),
+      ),
+    );
+    if (!mounted || email == null) return;
+
+    _emailController.text = email;
+    _senhaController.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Conta criada. Digite a senha para entrar.'),
       ),
     );
   }
@@ -105,11 +123,14 @@ class _TelaLoginState extends State<TelaLogin> {
                             labelText: 'Senha',
                             border: const OutlineInputBorder(),
                             suffixIcon: IconButton(
-                              icon: Icon(_ocultarSenha
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
+                              icon: Icon(
+                                _ocultarSenha
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
                               onPressed: () => setState(
-                                  () => _ocultarSenha = !_ocultarSenha),
+                                () => _ocultarSenha = !_ocultarSenha,
+                              ),
                             ),
                           ),
                           validator: (valor) {
@@ -141,6 +162,12 @@ class _TelaLoginState extends State<TelaLogin> {
                                   ),
                                 )
                               : const Text('Entrar'),
+                        ),
+                        TextButton(
+                          onPressed: _viewModel.carregando
+                              ? null
+                              : _abrirCadastro,
+                          child: const Text('Criar conta'),
                         ),
                       ],
                     ),

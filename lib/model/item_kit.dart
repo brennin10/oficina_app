@@ -20,6 +20,15 @@ class ItemKit {
 
   double get subtotal => preco * quantidade;
 
+  Material get comoMaterial => Material(
+      id: materialId,
+      nome: nome,
+      descricao: '',
+      categoria: categoria,
+      preco: preco,
+      imagemUrl: imagemUrl,
+  );
+
   factory ItemKit.fromJson(Map<String, dynamic> json) {
     // Aceita tanto {materialId, quantidade, material: {...}} quanto campos soltos.
     final material = json['material'] is Map

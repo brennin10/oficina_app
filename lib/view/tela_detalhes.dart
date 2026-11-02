@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart' hide Material;
 
 import '../core/state/estado_tela.dart';
-import '../core/utils/formatadores.dart';
 import '../model/material.dart';
-import '../model/usuario.dart';
 import '../repository/repositorios.dart';
 import '../viewmodel/detalhes_viewmodel.dart';
+import '../viewmodel/kit_viewmodel.dart';
 import 'widgets/mensagens_estado.dart';
 import 'widgets/seletor_quantidade.dart';
+import 'widgets/textos_padrao.dart';
 
 class TelaDetalhes extends StatefulWidget {
   final int materialId;
-  final Usuario usuario;
+  final KitViewModel kitViewModel;
   final Repositorios repositorios;
 
   const TelaDetalhes({
     super.key,
     required this.materialId,
-    required this.usuario,
+    required this.kitViewModel,
     required this.repositorios,
   });
 
@@ -40,6 +40,26 @@ class _TelaDetalhesState extends State<TelaDetalhes> {
   void dispose() {
     _viewModel.dispose();
     super.dispose();
+  }
+
+  Future<void> _adicionarAoKit(Material material) async {
+    final kitVm = widget.kitViewModel;
+    final quantidadeEscolhida = _quantidade;
+
+    final ok = await kitVm.adicionar(
+      materialId: material.id,
+      quantidade: quantidadeEscolhida,
+    );
+    if (!mounted) return;
+
+    final texto = ok
+        ? 'Adicionado ao kit: ${material.nome} (x$quantidadeEscolhida).'
+        : (kitVm.mensagemErro ?? 'Não foi possível adicionar ao kit.');
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(texto)));
+
+    if (ok) setState(() => _quantidade = 1);
   }
 
   @override
@@ -97,19 +117,45 @@ class _TelaDetalhesState extends State<TelaDetalhes> {
           const SizedBox(height: 12),
           Text(material.descricao),
           const SizedBox(height: 16),
-          Text('Preço unitário: ${formatarPreco(material.preco)}',
-              style: tema.titleMedium),
+          Row(
+            children: [
+              const TextoSecundario('Preço unitário: '),
+              TextoPreco(valor: material.preco),
+            ],
+          ),
           const SizedBox(height: 24),
-          Text('Quantidade', style: tema.titleMedium),
+          const TituloSecao('Quantidade'),
           const SizedBox(height: 8),
           SeletorQuantidade(
             quantidade: _quantidade,
             aoAlterar: (novoValor) => setState(() => _quantidade = novoValor),
           ),
           const SizedBox(height: 24),
-          Text(
-            'Total: ${formatarPreco(material.preco * _quantidade)}',
-            style: tema.titleLarge,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const TituloSecao('Total'),
+              TextoPreco(
+                valor: material.preco * _quantidade,
+                estilo: tema.titleLarge,
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          ListenableBuilder(
+            listenable: widget.kitViewModel,
+            builder: (context, _) {
+              return SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: widget.kitViewModel.carregando
+                      ? null
+                      : () => _adicionarAoKit(material),
+                  icon: const Icon(Icons.add_shopping_cart),
+                  label: const Text('Adicionar ao kit'),
+                ),
+              );
+            },
           ),
         ],
       ),
