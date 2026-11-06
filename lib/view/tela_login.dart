@@ -16,8 +16,8 @@ class TelaLogin extends StatefulWidget {
 
 class _TelaLoginState extends State<TelaLogin> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'ana@ifs.edu.br');
-  final _senhaController = TextEditingController(text: '123456');
+  final _emailController = TextEditingController();
+  final _senhaController = TextEditingController();
   late final LoginViewModel _viewModel;
   bool _ocultarSenha = true;
 
